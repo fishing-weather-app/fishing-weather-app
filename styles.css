@@ -1,6 +1,7 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
   background: #e6f0ff;
   color: #003366;
   direction: rtl;
@@ -13,52 +14,96 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 header h1 {
   margin: 0;
+  font-size: 1.5em;
+}
+
+select#language-select {
+  padding: 7px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: white;
+  color: #004080;
+  font-weight: bold;
 }
 
 main {
   padding: 15px;
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
 }
 
 section {
   margin-bottom: 20px;
   background: white;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 button {
   background-color: #004080;
   color: white;
   border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
+  padding: 10px 15px;
+  border-radius: 6px;
   cursor: pointer;
-  margin-left: 5px;
+  margin: 5px 0 5px 5px;
+  transition: background-color 0.3s ease;
+  font-size: 1em;
 }
 
 button:hover {
   background-color: #003366;
 }
 
-input[type=text] {
-  padding: 7px;
-  width: 200px;
-  border-radius: 5px;
+input[type="text"] {
+  padding: 10px;
+  width: 250px;
+  border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 1em;
+  margin-left: 10px;
+}
+
+#map {
+  height: 300px;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
 }
 
 footer {
   text-align: center;
-  padding: 10px;
+  padding: 15px;
   background-color: #004080;
   color: white;
-  margin-top: 30px;
+  margin-top: 40px;
   font-size: 0.9em;
+  border-top: 2px solid #003366;
+}
+
+@media (max-width: 600px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  select#language-select {
+    width: 100%;
+    margin-top: 10px;
+  }
 }
