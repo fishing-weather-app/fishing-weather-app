@@ -1,87 +1,91 @@
+// app.js
+
 // مفاتيح API
 const OPENWEATHERMAP_API_KEY = 'fa8384da565263849c4e';
 const STORMGLASS_API_KEY = '6394507a-3a07-11f0-976d-0242ac130006-639450de-3a07-11f0-976d-0242ac130006';
 
-// تحديث كل 2.4 ساعة = 144 دقيقة
+// رابط البروكسي (ضع هنا رابط البروكسي الذي جهزته)
+const proxyUrl = 'https://d75703d1-bf5f-4786-b254-7f6cb69b8cb0-00-2qbgslqxfyxsr.janeway.replit.dev/';
+
+// تحديث كل 2.4 ساعة (144 دقيقة)
 const UPDATE_INTERVAL_MINUTES = 144;
 const UPDATE_INTERVAL_MS = UPDATE_INTERVAL_MINUTES * 60 * 1000;
 
 let map, marker;
 let currentLang = 'ar';
 
-// ترجمة النصوص الأساسية
+// ترجمات النصوص الأساسية
 const translations = {
   ar: {
     title: 'طقس الصياد',
     autoLocate: 'تحديد الموقع تلقائياً',
-    manualLocate: 'تحديد يدوي',
-    locationPlaceholder: 'أدخل اسم المدينة أو الموقع',
+    manualLocate: 'تحديد الموقع يدوياً',
+    locationPlaceholder: 'أدخل اسم المدينة أو الإحداثيات',
     weatherTitle: 'حالة الطقس',
-    seaTitle: 'موج البحر والمد والجزر',
+    seaTitle: 'حالة البحر',
     mapTitle: 'الخريطة',
     temperature: 'درجة الحرارة',
-    wind: 'الرياح',
+    wind: 'سرعة الرياح',
     humidity: 'الرطوبة',
     description: 'الوصف',
     waveHeight: 'ارتفاع الموج',
-    tide: 'المد والجزر',
-    errorLocation: 'لم نستطع تحديد موقعك',
-    errorFetch: 'فشل في جلب البيانات',
+    tide: 'المد والجزر التالي',
+    errorFetch: 'حدث خطأ أثناء جلب البيانات، حاول مرة أخرى.',
+    errorLocation: 'تعذر تحديد الموقع.',
   },
   en: {
-    title: 'Fisherman Weather',
+    title: 'Fisher Weather',
     autoLocate: 'Auto Locate',
     manualLocate: 'Manual Locate',
-    locationPlaceholder: 'Enter city or location',
+    locationPlaceholder: 'Enter city or coordinates',
     weatherTitle: 'Weather Status',
-    seaTitle: 'Wave and Tide',
+    seaTitle: 'Sea Status',
     mapTitle: 'Map',
     temperature: 'Temperature',
-    wind: 'Wind',
+    wind: 'Wind Speed',
     humidity: 'Humidity',
     description: 'Description',
     waveHeight: 'Wave Height',
-    tide: 'Tide',
-    errorLocation: 'Could not get your location',
-    errorFetch: 'Failed to fetch data',
+    tide: 'Next Tide',
+    errorFetch: 'Error fetching data, please try again.',
+    errorLocation: 'Unable to get location.',
   },
   tr: {
     title: 'Balıkçı Hava Durumu',
     autoLocate: 'Otomatik Konum',
     manualLocate: 'Manuel Konum',
-    locationPlaceholder: 'Şehir veya yer girin',
+    locationPlaceholder: 'Şehir veya koordinat girin',
     weatherTitle: 'Hava Durumu',
-    seaTitle: 'Dalga ve Gelgit',
+    seaTitle: 'Deniz Durumu',
     mapTitle: 'Harita',
     temperature: 'Sıcaklık',
-    wind: 'Rüzgar',
+    wind: 'Rüzgar Hızı',
     humidity: 'Nem',
     description: 'Açıklama',
     waveHeight: 'Dalga Yüksekliği',
-    tide: 'Gelgit',
-    errorLocation: 'Konum alınamadı',
-    errorFetch: 'Veri alınamadı',
+    tide: 'Sonraki Gelgit',
+    errorFetch: 'Veri alınırken hata oluştu, tekrar deneyin.',
+    errorLocation: 'Konum alınamıyor.',
   },
   ku: {
-    title: 'Hewata Masîvan',
-    autoLocate: 'Cîhê xwe bicîh bikin',
-    manualLocate: 'Destan cîhê xwe binivîsin',
-    locationPlaceholder: 'Navê bajar an cîhê binivîse',
-    weatherTitle: 'Rewşa Hewatê',
-    seaTitle: 'Qul û Gerîn',
+    title: 'Hewada Masî',
+    autoLocate: 'Cîhaza xweş',
+    manualLocate: 'Cîhaza destan',
+    locationPlaceholder: 'Navê bajêr an koordinatan binivîse',
+    weatherTitle: 'Rewşa Hewada',
+    seaTitle: 'Rewşa Deryayê',
     mapTitle: 'Nexşe',
     temperature: 'Germî',
-    wind: 'Ba',
-    humidity: 'Rûwetî',
+    wind: 'Lehîndarî',
+    humidity: 'Nem',
     description: 'Danasîn',
-    waveHeight: 'Bilindahiya qulê',
-    tide: 'Gerîn',
-    errorLocation: 'Nexşe cîhê te nayê dîtin',
-    errorFetch: 'Daneyên wergerandin çewt bû',
+    waveHeight: 'Bilindahiya Dewrê',
+    tide: 'Pêşî Dewr',
+    errorFetch: 'Çewtiyeke di wergirtina daneyan de, ji kerema xwe dîsa biceribîne.',
+    errorLocation: 'Nezane cîh çi ye.',
   }
 };
 
-// تحديث النصوص حسب اللغة المختارة
 function updateTranslations() {
   const t = translations[currentLang];
   document.getElementById('title').textContent = t.title;
@@ -93,10 +97,9 @@ function updateTranslations() {
   document.getElementById('map-title').textContent = t.mapTitle;
 }
 
-// جلب بيانات الطقس من OpenWeatherMap
 async function fetchWeather(lat, lon) {
   const t = translations[currentLang];
-  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHERMAP_API_KEY}&lang=${currentLang}`;
+  const url = proxyUrl + `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHERMAP_API_KEY}&lang=${currentLang}`;
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error('Weather fetch error');
@@ -113,10 +116,9 @@ async function fetchWeather(lat, lon) {
   }
 }
 
-// جلب بيانات موج البحر والمد والجزر من Stormglass
 async function fetchSea(lat, lon) {
   const t = translations[currentLang];
-  const url = `https://api.stormglass.io/v2/tide/extremes/point?lat=${lat}&lng=${lon}`;
+  const url = proxyUrl + `https://api.stormglass.io/v2/tide/extremes/point?lat=${lat}&lng=${lon}`;
   try {
     const res = await fetch(url, {
       headers: { Authorization: STORMGLASS_API_KEY },
@@ -124,9 +126,7 @@ async function fetchSea(lat, lon) {
     if (!res.ok) throw new Error('Sea fetch error');
     const data = await res.json();
 
-    // أبسط عرض للمد والجزر بناء على البيانات
     const tideExtremes = data.data;
-    // نأخذ أقرب مد وجزر للوقت الحالي (يمكن تحسين لاحقًا)
     const now = new Date();
     let nextTide = tideExtremes.find(tide => new Date(tide.time) > now);
     if (!nextTide) nextTide = tideExtremes[0];
@@ -180,7 +180,6 @@ async function updateAll(lat, lon) {
   updateSeaUI(sea);
 }
 
-// تحديد الموقع تلقائياً
 document.getElementById('auto-locate-btn').addEventListener('click', () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -192,12 +191,10 @@ document.getElementById('auto-locate-btn').addEventListener('click', () => {
   }
 });
 
-// تحديد الموقع يدويًا
 document.getElementById('manual-locate-btn').addEventListener('click', async () => {
   const location = document.getElementById('manual-location').value.trim();
   if (!location) return;
-  // نستخدم API OpenWeatherMap للبحث عن إحداثيات المدينة
-  const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${OPENWEATHERMAP_API_KEY}`;
+  const geoUrl = proxyUrl + `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${OPENWEATHERMAP_API_KEY}`;
   try {
     const res = await fetch(geoUrl);
     if (!res.ok) throw new Error('Geo fetch error');
@@ -213,23 +210,20 @@ document.getElementById('manual-locate-btn').addEventListener('click', async () 
   }
 });
 
-// تغيير اللغة
 document.getElementById('language-select').addEventListener('change', (e) => {
   currentLang = e.target.value;
-  // يعيد تحميل آخر الموقع على الخريطة والبيانات
   if (marker) {
     const { lat, lng } = marker.getLatLng();
     updateAll(lat, lng);
   } else {
-    // الموقع الافتراضي إسطنبول
     updateAll(41.015137, 28.979530);
   }
 });
 
-// بدء التطبيق بالموقع الافتراضي (اسطنبول)
+// ابدأ بعرض بيانات إسطنبول بشكل افتراضي
 updateAll(41.015137, 28.979530);
 
-// تحديث تلقائي كل فترة محددة
+// حدث التحديث كل فترة محددة
 setInterval(() => {
   if (marker) {
     const { lat, lng } = marker.getLatLng();
