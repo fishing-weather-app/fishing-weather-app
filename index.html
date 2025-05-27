@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>طقس الصياد</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+  <h1 id="title">طقس الصياد</h1>
+  <select id="language-select" aria-label="اختر اللغة">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="tr">Türkçe</option>
+    <option value="ku">Kurdî</option>
+  </select>
+</header>
+
+<main>
+  <section id="location-section">
+    <button id="auto-locate-btn">تحديد الموقع تلقائياً</button>
+    <input type="text" id="manual-location" placeholder="أدخل اسم المدينة أو الموقع" />
+    <button id="manual-locate-btn">تحديد يدوي</button>
+  </section>
+
+  <section id="weather-section">
+    <h2 id="weather-title">حالة الطقس</h2>
+    <div id="weather-data">
+      <p id="temperature"></p>
+      <p id="wind"></p>
+      <p id="humidity"></p>
+      <p id="description"></p>
+    </div>
+  </section>
+
+  <section id="sea-section">
+    <h2 id="sea-title">موج البحر والمد والجزر</h2>
+    <div id="sea-data">
+      <p id="wave-height"></p>
+      <p id="tide"></p>
+    </div>
+  </section>
+
+  <section id="map-section">
+    <h2 id="map-title">الخريطة</h2>
+    <div id="map" style="height: 300px;"></div>
+  </section>
+</main>
+
+<footer>
+  <p>© 2025 طقس الصياد</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
